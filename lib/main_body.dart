@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:snake_game/services/shared_pref.dart';
 import 'package:snake_game/widgets/blank.pixel.dart';
 import 'package:snake_game/widgets/food_pixel.dart';
 import 'package:snake_game/widgets/snake_pixel.dart';
@@ -16,6 +17,8 @@ class MainBody extends StatefulWidget {
 enum snake_Direction { UP, DOWN, LEFT, RIGHT }
 
 class _State extends State<MainBody> {
+
+  int prefText = 0 ;
   //grid dimensions
   int rowSize = 10;
   int totalNumberOfSquares = 100;
@@ -29,9 +32,9 @@ class _State extends State<MainBody> {
   @override
   void initState() {
     super.initState();
-    foodPos = Random().nextInt(totalNumberOfSquares);
+    PreferenceUtils.init();
+      foodPos = Random().nextInt(totalNumberOfSquares);
   }
-
 
   var currentDirection = snake_Direction.RIGHT;
 
@@ -47,11 +50,15 @@ class _State extends State<MainBody> {
 
           showDialog(context: context, builder: (context){
             return AlertDialog(
-                title: Text("[Game Over] score : $currentScore"),
+                title: Center(child: Text("Game Over")),
+                content: Column(
+                  children: [
+                    Text("score : $currentScore"),
+                  ],
+                ),
               actions: [
                 MaterialButton(onPressed: (){
                   Navigator.pop(context);
-                  submitScore;
                   newGame();
                 } ,
                 color: Colors.pink,
@@ -65,9 +72,6 @@ class _State extends State<MainBody> {
     });
   }
 
-  void submitScore(){
-
-  }
 
   void newGame(){
    setState(() {
@@ -87,6 +91,7 @@ class _State extends State<MainBody> {
 
     List<int> bodySnake = snakePos.sublist(0, snakePos.length - 1);
     if (bodySnake.contains(snakePos.last)) {
+      PreferenceUtils.setString("count","$currentScore");
       return true;
     } else {
       return false;
@@ -165,9 +170,7 @@ class _State extends State<MainBody> {
                     style: TextStyle(fontSize: 36) ,)
                 ],
               ),
-
-
-              Text("high scores . . .")
+              Text("LAST SCORE: ${PreferenceUtils.getString("count")}")
             ],
           )),
           Expanded(
